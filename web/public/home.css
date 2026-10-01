@@ -306,7 +306,9 @@ html[lang="en"] .tr { display: none !important; }
 }
 
 /* Ekran galerisi */
+.gallery-wrap { position: relative; }
 .gallery {
+  cursor: grab;
   display: flex;
   gap: 22px;
   overflow-x: auto;
@@ -316,6 +318,37 @@ html[lang="en"] .tr { display: none !important; }
   scrollbar-width: none;
 }
 .gallery::-webkit-scrollbar { display: none; }
+.gallery.dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+.gallery-btn {
+  position: absolute;
+  top: calc(50% - 40px);
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 0;
+  display: grid;
+  place-items: center;
+  color: var(--on-surface);
+  background: color-mix(in srgb, var(--surface-lowest) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(25, 27, 34, 0.14);
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.gallery-btn svg { width: 22px; height: 22px; }
+.gallery-btn:hover { transform: scale(1.06); }
+.gallery-btn:disabled { opacity: 0; pointer-events: none; }
+.gallery-btn.prev { left: -8px; }
+.gallery-btn.next { right: -8px; }
+@media (hover: none) {
+  .gallery-btn { display: none; }
+}
 .gallery figure {
   flex: none;
   margin: 0;

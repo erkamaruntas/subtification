@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
-<link rel="stylesheet" href="/home.css">
+<link rel="stylesheet" href="/home.css?v=2">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -186,13 +186,21 @@
       <span class="label"><span class="tr">Ekranlar</span><span class="en">Screens</span></span>
       <h2><span class="tr">Sade, hızlı, derli toplu</span><span class="en">Clean, fast and tidy</span></h2>
     </div>
-    <div class="gallery">
-      <figure><div class="phone"><img src="/screens/home.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Ana sayfa</span><span class="en">Home</span></figcaption></figure>
-      <figure><div class="phone"><img src="/screens/list.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Abonelikler</span><span class="en">Subscriptions</span></figcaption></figure>
-      <figure><div class="phone"><img src="/screens/detail.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Abonelik detayı</span><span class="en">Subscription details</span></figcaption></figure>
-      <figure><div class="phone"><img src="/screens/analytics.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Analizler</span><span class="en">Analytics</span></figcaption></figure>
-      <figure><div class="phone"><img src="/screens/upcoming.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Yaklaşan ödemeler</span><span class="en">Upcoming payments</span></figcaption></figure>
-      <figure><div class="phone"><img src="/screens/notifications.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Hatırlatmalar</span><span class="en">Reminders</span></figcaption></figure>
+    <div class="gallery-wrap">
+      <button class="gallery-btn prev" type="button" aria-label="Önceki ekranlar" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="gallery">
+        <figure><div class="phone"><img src="/screens/home.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Ana sayfa</span><span class="en">Home</span></figcaption></figure>
+        <figure><div class="phone"><img src="/screens/list.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Abonelikler</span><span class="en">Subscriptions</span></figcaption></figure>
+        <figure><div class="phone"><img src="/screens/detail.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Abonelik detayı</span><span class="en">Subscription details</span></figcaption></figure>
+        <figure><div class="phone"><img src="/screens/analytics.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Analizler</span><span class="en">Analytics</span></figcaption></figure>
+        <figure><div class="phone"><img src="/screens/upcoming.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Yaklaşan ödemeler</span><span class="en">Upcoming payments</span></figcaption></figure>
+        <figure><div class="phone"><img src="/screens/notifications.webp" width="780" height="1688" loading="lazy" alt=""></div><figcaption><span class="tr">Hatırlatmalar</span><span class="en">Reminders</span></figcaption></figure>
+      </div>
+      <button class="gallery-btn next" type="button" aria-label="Sonraki ekranlar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
     </div>
   </section>
 
@@ -250,6 +258,44 @@
       try { localStorage.setItem('lang', next); } catch (e) {}
       apply(next);
     });
+
+    // Ekran galerisi: oklar ve fareyle sürükleme (fare tekerleği yatay kaydırmıyor)
+    var gallery = document.querySelector('.gallery');
+    var prevBtn = document.querySelector('.gallery-btn.prev');
+    var nextBtn = document.querySelector('.gallery-btn.next');
+    function step() {
+      var fig = gallery.querySelector('figure');
+      return fig ? fig.getBoundingClientRect().width + 22 : 250;
+    }
+    function updateButtons() {
+      var max = gallery.scrollWidth - gallery.clientWidth - 2;
+      prevBtn.disabled = gallery.scrollLeft <= 2;
+      nextBtn.disabled = gallery.scrollLeft >= max;
+    }
+    prevBtn.addEventListener('click', function () { gallery.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    nextBtn.addEventListener('click', function () { gallery.scrollBy({ left: step(), behavior: 'smooth' }); });
+    gallery.addEventListener('scroll', updateButtons, { passive: true });
+    window.addEventListener('resize', updateButtons);
+    updateButtons();
+
+    var drag = null;
+    gallery.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      drag = { x: e.clientX, left: gallery.scrollLeft, moved: false };
+      gallery.classList.add('dragging');
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 3) drag.moved = true;
+      gallery.scrollLeft = drag.left - dx;
+    });
+    window.addEventListener('pointerup', function () {
+      if (!drag) return;
+      drag = null;
+      gallery.classList.remove('dragging');
+    });
+    gallery.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
     // Kaydırınca beliren bölümler
     var items = document.querySelectorAll('.reveal');
