@@ -39,6 +39,15 @@ alter table if exists public.subscriptions
   add column if not exists created_at timestamptz default now(),
   add column if not exists updated_at timestamptz default now();
 
+-- Eski şemayla oluşturulmuş tablolarda user_id kısıtı cascade değildi; hesap silme
+-- aboneliği olan kullanıcıda foreign key hatası veriyordu. Her çalıştırmada cascade yap.
+alter table public.subscriptions
+  drop constraint if exists subscriptions_user_id_fkey;
+
+alter table public.subscriptions
+  add constraint subscriptions_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete cascade;
+
 -- If an older table used `price`, copy it into `amount`.
 do $$
 begin
